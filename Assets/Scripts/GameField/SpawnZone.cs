@@ -3,7 +3,7 @@ using Photon.Pun;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-public class SpawnZone : MonoBehaviourPunCallbacks
+public class SpawnZone : MonoBehaviourPun
 {
     [SerializeField] private SpriteRenderer spawnZoneRenderer;
     private Vector3 _currentRandomPosition;

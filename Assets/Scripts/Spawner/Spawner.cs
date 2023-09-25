@@ -14,8 +14,8 @@ public class Spawner : MonoBehaviourPunCallbacks
 
     private void Start()
     {
-        _spawnZone = GameNetController.Controller.GetSpawnZone();
-        _objectPool = GameNetController.Controller.GetObjectPool();
+        _spawnZone = GameController.Controller.GetSpawnZone();
+        _objectPool = GameController.Controller.GetObjectPool();
         
         if(!PhotonNetwork.IsMasterClient) return;
         InitializeMap();

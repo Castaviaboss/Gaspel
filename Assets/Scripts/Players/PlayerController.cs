@@ -16,22 +16,25 @@ public class PlayerController : MonoBehaviour
 
     private void Start()
     {
+        joystick = GameController.Controller.GetJoystick();
+        fireButton = GameController.Controller.GetFireButton();
+        photonView = GetComponent<PhotonView>();
         fireButton.onClick.AddListener(FireAction);
     }
 
     private void Update()
     {
-        if(!photonView.IsMine) return;
+        if(!photonView.IsMine && PhotonNetwork.IsConnected) return;
         Movement();
     }
 
     private void Movement()
     {
-        /*_horizontalInput = joystick.Horizontal;
-        _verticalInput = joystick.Vertical;*/
+        _horizontalInput = joystick.Horizontal;
+        _verticalInput = joystick.Vertical;
         
-        _horizontalInput = Input.GetAxis("Horizontal");
-        _verticalInput = Input.GetAxis("Vertical");
+        /*_horizontalInput = Input.GetAxis("Horizontal");
+        _verticalInput = Input.GetAxis("Vertical");*/
 
         _direction = new Vector2(_horizontalInput, _verticalInput).normalized;
 

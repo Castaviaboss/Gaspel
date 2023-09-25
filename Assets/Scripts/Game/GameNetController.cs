@@ -1,92 +1,59 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public enum GameState
-{
-    Game,
-    Pause,
-    Win,
-}
-
 public class GameNetController : MonoBehaviourPunCallbacks
 {
-    [SerializeField] private SpawnZone spawnZone;
-    [SerializeField] private ObjectPool objectPool;
-    [SerializeField] private Spawner spawner;
-    [SerializeField] private AbilityController abilityController;
-    [SerializeField] private List<Player> _players = new List<Player>();
+    public static GameNetController Instance;
+    [SerializeField] private List<PlayerNetwork> playerList = new List<PlayerNetwork>();
+    /*private PlayerNetwork _championPlayer;*/
 
+    public List<PlayerNetwork> GetPlayersList()
+    {
+        return playerList;
+    }
+    
     #region Initialize
-
-    public static GameNetController Controller;
 
     private void Awake()
     {
-        if (Controller == null)
-        {
-            Controller = this;
-        }
-    }
-
-    private void Start()
-    {
-        InitializePlayer();
-    }
-
-    private void InitializePlayer()
-    {
-        Vector3 position = spawnZone.GetRandomZonePosition();
-        var player = PhotonNetwork.Instantiate("Player", position, Quaternion.identity);
-        var playerComponent = player.GetComponent<BasePlayer>();
-        playerComponent.InitializePlayer(50, 0);
+        if (Instance == null) Instance = this;
     }
     
     #endregion
-
-    public SpawnZone GetSpawnZone()
-    {
-        return spawnZone;
-    }
     
-    public ObjectPool GetObjectPool()
+    /*private void InitializePlayer()
     {
-        return objectPool;
-    }
+        Debug.Log("init");
+        
+        var player = PhotonNetwork.Instantiate("Player",GameController.Controller.GetSpawnZone().GetRandomZonePosition(), Quaternion.identity);
+        var playerComponent = player.GetComponent<BasePlayer>();
+        
+        player.gameObject.name = PhotonNetwork.NickName;
+        playerComponent.InitializePlayer(50, 0);
+    }*/
     
-    public Spawner GetSpawner()
-    {
-        return spawner;
-    }
-    
-    public AbilityController GetAbilityController()
-    {
-        return abilityController;
-    }
-
     #region Network
 
-    public void LeaveRoom()
+    public void OnPlayerPrefabCreated()
     {
-        PhotonNetwork.LeaveRoom();
-    }
-    
-    public override void OnLeftRoom()
-    {
-        SceneManager.LoadScene(0);
-    }
-
-    public override void OnPlayerEnteredRoom(Player newPlayer)
-    {
-        _players.Add(newPlayer);
+        playerList = FindObjectsOfType<PlayerNetwork>(true).ToList();
     }
 
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
-        _players.Remove(otherPlayer);
+        playerList = FindObjectsOfType<PlayerNetwork>(true).ToList();
     }
-
+    
+    public void LeaveRoom()
+    {
+        PhotonNetwork.LeaveRoom();
+        SceneManager.LoadScene(0);
+    }
+    
     #endregion
 }

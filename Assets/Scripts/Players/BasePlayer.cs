@@ -2,10 +2,8 @@ using System;
 using Photon.Pun;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
-using Random = UnityEngine.Random;
 
-public class BasePlayer : MonoBehaviourPunCallbacks
+public class BasePlayer : MonoBehaviourPun
 {
     [Header("Links")]
     [SerializeField] private SpriteRenderer sprite;
@@ -13,17 +11,17 @@ public class BasePlayer : MonoBehaviourPunCallbacks
     [SerializeField] private TMP_Text healthView;
     [SerializeField] private TMP_Text coinView;
     private AbilityController _controller;
+    private PhotonView _photonView;
     [Header("fields")]
     [SerializeField] private int health;
-    [SerializeField] private byte coinCount;
-
-    public void InitializePlayer(byte health, byte coinCount)
+    [SerializeField] private int coinCount;
+    
+    private void Start()
     {
-        this.health = health;
-        this.coinCount = coinCount;
-        
         healthView.text = health.ToString();
-        _controller = GameNetController.Controller.GetAbilityController();
+        
+        _controller = GameController.Controller.GetAbilityController();
+        
         playerController.onFire += Attack;
     }
 
@@ -47,6 +45,11 @@ public class BasePlayer : MonoBehaviourPunCallbacks
         return health;
     }
 
+    public virtual void SetHealth(int value)
+    {
+        health = value;
+    }
+
     public virtual void Attack()
     {
         _controller.UseAbilityForType(this);
@@ -57,10 +60,20 @@ public class BasePlayer : MonoBehaviourPunCallbacks
         this.gameObject.SetActive(false);
     }
 
-    public virtual void TakeCoin(byte value)
+    public virtual void TakeCoin(int value)
     {
         coinCount += value;
         coinView.text = coinCount.ToString();
+    }
+
+    public virtual int GetCoinsCount()
+    {
+        return coinCount;
+    }
+
+    public virtual void SetCoinsCount(int value)
+    {
+        coinCount = value;
     }
     
     private void OnDestroy()

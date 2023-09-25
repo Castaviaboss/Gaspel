@@ -7,7 +7,7 @@ public class AbilityController : MonoBehaviour
     [SerializeField] private List<BaseAbility> usesAbility;
     private void Start()
     {
-        _pool = GameNetController.Controller.GetObjectPool();
+        _pool = GameController.Controller.GetObjectPool();
     }
 
     public void UseAbilityForType(BasePlayer player)
