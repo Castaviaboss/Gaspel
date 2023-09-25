@@ -3,7 +3,6 @@ using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using Random = UnityEngine.Random;
 
 public enum GameState
 {
@@ -16,12 +15,58 @@ public class GameNetController : MonoBehaviourPunCallbacks
 {
     [SerializeField] private SpawnZone spawnZone;
     [SerializeField] private ObjectPool objectPool;
-    public string playerObj;
+    [SerializeField] private Spawner spawner;
+    [SerializeField] private AbilityController abilityController;
+    [SerializeField] private List<Player> _players = new List<Player>();
+
+    #region Initialize
+
+    public static GameNetController Controller;
+
+    private void Awake()
+    {
+        if (Controller == null)
+        {
+            Controller = this;
+        }
+    }
+
     private void Start()
     {
-        Vector3 position = new Vector3(Random.Range(-5f, 5f), Random.Range(-5, 5f));
-        PhotonNetwork.Instantiate(playerObj, position, Quaternion.identity);
+        InitializePlayer();
     }
+
+    private void InitializePlayer()
+    {
+        Vector3 position = spawnZone.GetRandomZonePosition();
+        var player = PhotonNetwork.Instantiate("Player", position, Quaternion.identity);
+        var playerComponent = player.GetComponent<BasePlayer>();
+        playerComponent.InitializePlayer(50, 0);
+    }
+    
+    #endregion
+
+    public SpawnZone GetSpawnZone()
+    {
+        return spawnZone;
+    }
+    
+    public ObjectPool GetObjectPool()
+    {
+        return objectPool;
+    }
+    
+    public Spawner GetSpawner()
+    {
+        return spawner;
+    }
+    
+    public AbilityController GetAbilityController()
+    {
+        return abilityController;
+    }
+
+    #region Network
 
     public void LeaveRoom()
     {
@@ -35,11 +80,13 @@ public class GameNetController : MonoBehaviourPunCallbacks
 
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
-        Debug.Log($"Player {newPlayer.NickName} enter  room");
+        _players.Add(newPlayer);
     }
 
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
-        Debug.Log($"Player {otherPlayer.NickName} left  room");
+        _players.Remove(otherPlayer);
     }
+
+    #endregion
 }

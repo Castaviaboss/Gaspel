@@ -4,19 +4,27 @@ using UnityEngine;
 
 public enum PoolType
 {
-    Ball,
     Coin,
-    Trap,
+    Ball,
+}
+
+public enum AbilityPoolType
+{
+    Ball,
 }
 public class ObjectPool : MonoBehaviourPunCallbacks
 {
     [SerializeField] private PoolObject[] poolObjects;
+    [SerializeField] private PoolObjectAbility[] abilityPool;
     [SerializeField] private byte additionalCountForResize;
 
     private void Awake()
     {
         InitializePool();
+        InitializeGenericPool();
     }
+
+    #region Standart Pool
 
     private void InitializePool()
     {
@@ -86,6 +94,53 @@ public class ObjectPool : MonoBehaviourPunCallbacks
 
         return null;
     }
+
+    #endregion
+
+    #region Ability Pool
+
+    private void InitializeGenericPool()
+    {
+        for (int i = 0; i < abilityPool.Length; i++)
+        {
+            var poolObj = abilityPool[i];
+            poolObj.objectsInPool = new BaseAbility[poolObj.countObjectsInPool];
+            for (int j = 0; j < poolObj.countObjectsInPool; j++)
+            {
+                var instantiatedObj = Instantiate(poolObj.objectPrefab, poolObj.parentTransform);
+                poolObj.objectsInPool[j] = instantiatedObj;
+                instantiatedObj.gameObject.SetActive(false);
+            }
+        }
+    }
+    
+    public BaseAbility GetInAbilityPool(PoolType type)
+    {
+        for (int i = 0; i < abilityPool.Length; i++)
+        {
+            var poolObj = abilityPool[i];
+            if(poolObj.type != type) continue;
+            for (int j = 0; j < poolObj.objectsInPool.Length; j++)
+            {
+                var obj = poolObj.objectsInPool[j];
+                if (!obj.gameObject.activeSelf)
+                {
+                    obj.gameObject.SetActive(true);
+                    return obj;
+                }
+            }
+        }
+        Debug.Log("Ability pool size is limited");
+        return null;
+    }
+
+    public void ReturnToPool(BaseAbility ability)
+    {
+        ability.ResetAbilityValues();
+        ability.gameObject.SetActive(false);
+    }
+
+    #endregion
 }
 
 [Serializable]
@@ -97,4 +152,25 @@ public class PoolObject
     public Transform parentTransform;
     public GameObject objectPrefab;
     public GameObject[] objectsInPool;
+}
+
+/*[Serializable]
+public class PoolObjectComponent<T> where T : MonoBehaviour
+{
+    [Range(0, byte.MaxValue)]
+    public byte countObjectsInPool;
+    public PoolType type;
+    public Transform parentTransform;
+    public T objectPrefab;
+    public T[] objectsInPool;
+}*/
+[Serializable]
+public class PoolObjectAbility
+{
+    [Range(0, byte.MaxValue)]
+    public byte countObjectsInPool;
+    public PoolType type;
+    public Transform parentTransform;
+    public BaseAbility objectPrefab;
+    public BaseAbility[] objectsInPool;
 }

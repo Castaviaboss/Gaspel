@@ -5,7 +5,6 @@ using UnityEngine.UI;
 public class GameUiController : MonoBehaviour
 {
     [SerializeField] private GameNetController netController;
-    [SerializeField] private GameObject gameMenuRoot;
     [SerializeField] private GameObject gameMenu;
     [SerializeField] private GameObject gamePopup;
     [SerializeField] private Button leaveGameButton;
@@ -25,9 +24,12 @@ public class GameUiController : MonoBehaviour
 
     private void ShowGameMenu()
     {
-        gameMenuRoot.SetActive(!gameMenuRoot.activeSelf);
         gameMenu.SetActive(!gameMenu.activeSelf);
-        
     }
-    
+
+    private void ShowPopupMenu()
+    {
+        gameMenu.SetActive(false);
+        gamePopup.SetActive(!gamePopup.activeSelf);
+    }
 }

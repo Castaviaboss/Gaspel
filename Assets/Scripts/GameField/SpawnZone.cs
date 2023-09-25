@@ -1,17 +1,19 @@
 using System;
+using Photon.Pun;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-public class SpawnZone : MonoBehaviour
+public class SpawnZone : MonoBehaviourPunCallbacks
 {
     [SerializeField] private SpriteRenderer spawnZoneRenderer;
-
+    private Vector3 _currentRandomPosition;
+    
     public void SpawnObjectInZone(GameObject obj, Vector2 position, Quaternion rotation)
     {
         obj.transform.position = position;
         obj.transform.rotation = rotation;
     }
-
+    
     public Vector3 GetRandomZonePosition()
     {
         Vector3 lossyScale = spawnZoneRenderer.transform.lossyScale;
