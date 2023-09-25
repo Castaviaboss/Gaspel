@@ -3,29 +3,30 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class LobbyController : MonoBehaviour
+public class LobbyEntryView: BaseUiObject
 {
-    [SerializeField] private TMP_Text messageText;
     [SerializeField] private Button createRoomButton;
     [SerializeField] private Button joinRoomButton;
     [SerializeField] private TMP_InputField nickNameField;
     [SerializeField] private TMP_InputField createRoomField;
     [SerializeField] private TMP_InputField joinRoomField;
-    [Header("Network")]
-    [SerializeField] private LobbyNetController lobbyNetController;
-    private void Awake()
+
+    public override void InitializeMenu()
     {
+        base.InitializeMenu();
         createRoomButton.onClick.AddListener(CreateRoomButtonClicked);
         joinRoomButton.onClick.AddListener(JoinRoomButtonClicked);
         
         nickNameField.onValueChanged.AddListener(value => ControlButtonInteractable());
         joinRoomField.onValueChanged.AddListener(value => ControlButtonInteractable());
         createRoomField.onValueChanged.AddListener(value => ControlButtonInteractable());
+
+        lobby.GetNetworkController().onConnectedToRoom += IsExecuteJoin;
         
         createRoomButton.interactable = false;
         joinRoomButton.interactable = false;
     }
-
+    
     private void ControlButtonInteractable()
     {
         bool isNickNameNotEmpty = !string.IsNullOrEmpty(GetFieldValue(nickNameField));
@@ -43,11 +44,29 @@ public class LobbyController : MonoBehaviour
     
     private void CreateRoomButtonClicked()
     {
-        lobbyNetController.CreateRoomAction(GetFieldValue(createRoomField), GetFieldValue(nickNameField));
+        lobby.GetNetworkController().CreateRoomAction(GetFieldValue(createRoomField), GetFieldValue(nickNameField), lobby.GetMaxPlayerCount());
     }
 
     private void JoinRoomButtonClicked()
     {
-        lobbyNetController.JoinRoomAction(GetFieldValue(joinRoomField), GetFieldValue(nickNameField));
+        lobby.GetNetworkController().JoinRoomAction(GetFieldValue(joinRoomField), GetFieldValue(nickNameField));
+    }
+
+    private void IsExecuteJoin(bool value)
+    {
+        if (value)
+        {
+            lobby.ShowWindow(WindowsType.LobbyRoom);
+            lobby.HideWindow(WindowsType.LobbyEntry);
+        }
+        else
+        {
+            CallMessage("The room doesn't exist");
+        }
+    }
+
+    private void OnDestroy()
+    {
+        lobby.GetNetworkController().onConnectedToRoom -= IsExecuteJoin;
     }
 }
