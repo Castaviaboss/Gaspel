@@ -13,6 +13,7 @@ public class CoinObject : MonoBehaviour
         
         if (!player) return;
         player.TakeCoin(coinCount);
+        player.GetDamage(-1);
         this.gameObject.SetActive(false);
     }
 }

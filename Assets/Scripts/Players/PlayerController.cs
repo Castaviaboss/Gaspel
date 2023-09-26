@@ -9,6 +9,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float moveSpeed = 8f;
     [SerializeField] private Joystick joystick;
     [SerializeField] private Button fireButton;
+    [SerializeField] private Rigidbody2D playerRigidbody;
     private float _horizontalInput;
     private float _verticalInput;
     private Vector2 _direction;
@@ -16,8 +17,8 @@ public class PlayerController : MonoBehaviour
 
     private void Start()
     {
-        joystick = GameController.Controller.GetJoystick();
-        fireButton = GameController.Controller.GetFireButton();
+        joystick = GameInstance.Controller.GetJoystick();
+        fireButton = GameInstance.Controller.GetFireButton();
         photonView = GetComponent<PhotonView>();
         fireButton.onClick.AddListener(FireAction);
     }
@@ -26,6 +27,13 @@ public class PlayerController : MonoBehaviour
     {
         if(!photonView.IsMine && PhotonNetwork.IsConnected) return;
         Movement();
+
+#if UNITY_EDITOR
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            FireAction();
+        }
+#endif
     }
 
     private void Movement()

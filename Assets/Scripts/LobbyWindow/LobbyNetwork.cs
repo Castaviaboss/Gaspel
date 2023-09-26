@@ -43,6 +43,7 @@ public class LobbyNetwork : MonoBehaviourPunCallbacks
     {
         Debug.Log("connected");
     }
+    
 
     #endregion
     
@@ -97,9 +98,6 @@ public class LobbyNetwork : MonoBehaviourPunCallbacks
     
     public override void OnDisconnected(DisconnectCause cause)
     {
-        if (Application.isPlaying)
-        {
-            PhotonNetwork.Reconnect();
-        }
+        PhotonNetwork.ReconnectAndRejoin();
     }
 }

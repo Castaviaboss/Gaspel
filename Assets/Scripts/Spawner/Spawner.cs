@@ -14,8 +14,8 @@ public class Spawner : MonoBehaviourPunCallbacks
 
     private void Start()
     {
-        _spawnZone = GameController.Controller.GetSpawnZone();
-        _objectPool = GameController.Controller.GetObjectPool();
+        _spawnZone = GameInstance.Controller.GetSpawnZone();
+        _objectPool = GameInstance.Controller.GetObjectPool();
         
         if(!PhotonNetwork.IsMasterClient) return;
         InitializeMap();
@@ -45,12 +45,13 @@ public class Spawner : MonoBehaviourPunCallbacks
         int amount = spawnPositions.Length;
         for (int i = 0; i < amount; i++)
         {
-            _spawnZone.SpawnObjectInZone(_objectPool.GetInPool(PoolType.Coin), spawnPositions[i], new Quaternion(0f, 0f, -90f, 0f));
+            _spawnZone.SpawnObjectInZone(_objectPool.GetInPool(PoolType.Coin), spawnPositions[i], Quaternion.identity);
         }
     }
     
     private void Update()
     {
+        if(!PhotonNetwork.IsMasterClient) return;
         spawnCoinsTimer -= Time.deltaTime;
 
         if (spawnCoinsTimer <= 0)

@@ -1,4 +1,5 @@
 using Photon.Pun;
+using Photon.Realtime;
 
 public class LoadingNetController : MonoBehaviourPunCallbacks
 {
@@ -23,5 +24,10 @@ public class LoadingNetController : MonoBehaviourPunCallbacks
     public override void OnConnectedToMaster()
     {
         PhotonNetwork.LoadLevel("Lobby");
+    }
+
+    public override void OnDisconnected(DisconnectCause cause)
+    {
+        PhotonNetwork.ReconnectAndRejoin();
     }
 }

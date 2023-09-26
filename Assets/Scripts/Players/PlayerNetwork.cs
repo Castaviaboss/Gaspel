@@ -5,7 +5,7 @@ using UnityEngine;
 public class PlayerNetwork : MonoBehaviourPun, IPunObservable
 {
     [SerializeField] private MonoBehaviour[] components;
-
+    
     private Vector3 _latestPosition;
     private BasePlayer _player;
     private int _lastCountOfHealth;
@@ -14,6 +14,11 @@ public class PlayerNetwork : MonoBehaviourPun, IPunObservable
     public int GetLastCountOfCoins()
     {
         return _lastCountOfCoins;
+    }
+
+    public BasePlayer GetPlayer()
+    {
+        return _player;
     }
 
     private void Start()
@@ -27,16 +32,22 @@ public class PlayerNetwork : MonoBehaviourPun, IPunObservable
         }
         
         _player = GetComponent<BasePlayer>();
-        GameNetController.Instance.OnPlayerPrefabCreated();
+        GameNetController.Instance.OnPlayerPrefabCreated(this);
     }
 
     private void Update()
     {
-        if(photonView.IsMine) return;
-        
-        transform.position = Vector3.Lerp(transform.position, _latestPosition, Time.deltaTime * 5f);
-        _player.SetHealth(_lastCountOfHealth);
-        _player.SetCoinsCount(_lastCountOfCoins);
+        if (!photonView.IsMine)
+        {
+            transform.position = Vector3.Lerp(transform.position, _latestPosition, Time.deltaTime * 6f);
+            _player.SetHealth(_lastCountOfHealth);
+            _player.SetCoinsCount(_lastCountOfCoins);
+        }
+    }
+
+    private void LateUpdate()
+    {
+        _latestPosition = transform.position;
     }
 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
@@ -44,10 +55,10 @@ public class PlayerNetwork : MonoBehaviourPun, IPunObservable
         if (stream.IsWriting)
         {
             stream.SendNext(transform.position);
-            stream.SendNext(_player.GetHealth());
-            stream.SendNext(_player.GetCoinsCount());
+            stream.SendNext((int)_player.GetHealth());
+            stream.SendNext((int)_player.GetCoinsCount());
         }
-        else
+        else if(stream.IsReading)
         {
             _latestPosition = (Vector3)stream.ReceiveNext();
             _lastCountOfHealth = (int)stream.ReceiveNext();
